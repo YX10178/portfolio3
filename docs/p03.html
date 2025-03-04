@@ -13,7 +13,7 @@
 
 <title>Portfolio 3</title>
 
-<script src="site_libs/header-attrs-2.13/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
@@ -141,11 +141,15 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.tab('show');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
   // Navbar adjustments
   var navHeight = $(".navbar").first().height() + 15;
@@ -174,8 +178,8 @@ $(document).ready(function () {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -183,16 +187,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -298,13 +295,65 @@ $(document).ready(function () {
 </div>
 
 
-<blockquote>
-<p>The projects should be numbered consecutively (i.e., in the order in
-which you began them), and should include for each project a description
-of the goal, the product (computer program, hand graph, computer graph,
-etc.), the data, and some interpretation. Reports must be reproducible
-and of high quality in terms of writing, grammar, presentation, etc.</p>
-</blockquote>
+<div
+id="the-purpose-of-this-portfolio-is-to-use-the-toothgrowth-dataset-and-draw-the-graphs-to-see-the-relationship-between-toothgrowth-dose-and-supplement-type."
+class="section level4">
+<h4>the purpose of this portfolio is to use the ToothGrowth dataset and
+draw the graphs to see the relationship between toothgrowth, dose, and
+supplement type.</h4>
+<pre class="r"><code>library (ggplot2)</code></pre>
+<p>##0 load the dataset</p>
+<pre class="r"><code>data(ToothGrowth)
+Tooth &lt;- ToothGrowth
+summary (Tooth)</code></pre>
+<pre><code>##       len        supp         dose      
+##  Min.   : 4.20   OJ:30   Min.   :0.500  
+##  1st Qu.:13.07   VC:30   1st Qu.:0.500  
+##  Median :19.25           Median :1.000  
+##  Mean   :18.81           Mean   :1.167  
+##  3rd Qu.:25.27           3rd Qu.:2.000  
+##  Max.   :33.90           Max.   :2.000</code></pre>
+<pre class="r"><code>##the effect of VC on tooth growth in Guinea pigs. The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+##A data frame with 60 observations on 3 variables.
+
+#[,1]   len numeric Tooth length
+#[,2]   supp    factor  Supplement type (VC or OJ).
+#[,3]   dose    numeric Dose in milligrams/day</code></pre>
+<p>##1 Tooth length by supplement type</p>
+<pre class="r"><code>ggplot (Tooth, aes(x = supp, y = len, fill = supp)) +
+  geom_bar(stat = &quot;summary&quot;, fun = mean, width = 0.5) +  
+  labs(title = &quot;Tooth Length by Supplement Type&quot;,
+       x = &quot;Supplement Type&quot;,
+       y = &quot;Mean Tooth Length&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="p03_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>##As can be seen from the figure, the average tooth length is higher when VC is delivered through orange juice</code></pre>
+<p>##2 tooth length by dose</p>
+<pre class="r"><code>ggplot (Tooth, aes(x = dose, y = len, fill = dose)) +
+  geom_bar(stat = &quot;summary&quot;, fun = mean, width = 0.5) +  
+  labs(title = &quot;Tooth Length by Dose&quot;,
+       x = &quot;Dose&quot;,
+       y = &quot;Mean Tooth Length&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="p03_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>##As can be seen from the figure, the average tooth length increases as the dose level increases.</code></pre>
+<p>##3 interaction of dose and supplement type</p>
+<pre class="r"><code>ggplot(Tooth, aes(x = dose, y = len, color = supp, group = supp)) +
+  geom_line(stat = &quot;summary&quot;, fun = mean, size = 1) +  # Line for mean values
+  geom_point(stat = &quot;summary&quot;, fun = mean, size = 4) +  # Points for mean values
+  labs(title = &quot;Interaction of Dose and Supplement Type&quot;,
+       x = &quot;Vitamin C Dose (mg/day)&quot;,
+       y = &quot;Mean Tooth Length&quot;,
+       color = &quot;Supplement Type&quot;) +
+  theme_minimal()</code></pre>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<p><img src="p03_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>###from the graph, we can see that there is an interaction between supplement type and dose. The effect of the dose depends on the supplement type. At 2.0 mg, OJ and VC produce similar tooth growth. </code></pre>
+</div>
 
 
 

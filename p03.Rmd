@@ -2,4 +2,57 @@
 title: "Portfolio 3"
 ---
 
-> The projects should be numbered consecutively (i.e., in the order in which you began them), and should include for each project a description of the goal, the product (computer program, hand graph, computer graph, etc.), the data, and some interpretation. Reports must be reproducible and of high quality in terms of writing, grammar, presentation, etc.
+#### the purpose of this portfolio is to use the ToothGrowth dataset and draw the graphs to see the relationship between toothgrowth, dose, and supplement type. 
+
+```{r}
+library (ggplot2)
+```
+
+##0 load the dataset 
+```{r}
+data(ToothGrowth)
+Tooth <- ToothGrowth
+summary (Tooth)
+##the effect of VC on tooth growth in Guinea pigs. The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+##A data frame with 60 observations on 3 variables.
+
+#[,1]	len	numeric	Tooth length
+#[,2]	supp	factor	Supplement type (VC or OJ).
+#[,3]	dose	numeric	Dose in milligrams/day
+```
+
+##1 Tooth length by supplement type 
+```{r}
+ggplot (Tooth, aes(x = supp, y = len, fill = supp)) +
+  geom_bar(stat = "summary", fun = mean, width = 0.5) +  
+  labs(title = "Tooth Length by Supplement Type",
+       x = "Supplement Type",
+       y = "Mean Tooth Length") +
+  theme_minimal()
+##As can be seen from the figure, the average tooth length is higher when VC is delivered through orange juice
+```
+
+##2 tooth length by dose 
+```{r}
+ggplot (Tooth, aes(x = dose, y = len, fill = dose)) +
+  geom_bar(stat = "summary", fun = mean, width = 0.5) +  
+  labs(title = "Tooth Length by Dose",
+       x = "Dose",
+       y = "Mean Tooth Length") +
+  theme_minimal()
+##As can be seen from the figure, the average tooth length increases as the dose level increases.
+```
+
+##3 interaction of dose and supplement type 
+```{r}
+ggplot(Tooth, aes(x = dose, y = len, color = supp, group = supp)) +
+  geom_line(stat = "summary", fun = mean, size = 1) +  # Line for mean values
+  geom_point(stat = "summary", fun = mean, size = 4) +  # Points for mean values
+  labs(title = "Interaction of Dose and Supplement Type",
+       x = "Vitamin C Dose (mg/day)",
+       y = "Mean Tooth Length",
+       color = "Supplement Type") +
+  theme_minimal()
+###from the graph, we can see that there is an interaction between supplement type and dose. The effect of the dose depends on the supplement type. At 2.0 mg, OJ and VC produce similar tooth growth. 
+```
+
